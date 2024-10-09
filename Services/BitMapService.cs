@@ -5,49 +5,53 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Maui.Graphics;
+using System.Drawing;
+using Microsoft.Maui.Controls.Shapes;
 using IImage = Microsoft.Maui.Graphics.IImage;
-
+using System.Reflection;
+using SkiaSharp;
 namespace adventuredesign8puzzle.Services
 {
     public class BitMapService
     {
-        ImageSource imgSource;
 
-        public BitMapService(ImageSource imageSource)
+        public BitMapService()
         {
-            this.imgSource = imageSource;
+            
+
         }
 
-        public Dictionary<int,IImage> divideNxN(IImage image,int size, int n)
+        public Dictionary<int, SKBitmap> divideNxN(SKBitmap originalImage, int n)
         {
-            var dict = new Dictionary<int, IImage>();
+            var dict = new Dictionary<int, SKBitmap>();
+            int pieceWidth = originalImage.Width / n;
+            int pieceHeight = originalImage.Height / n;
 
-            //이미지를 size크기로 만들고 n*n개로 나누기
-            var bitmap = image.ToBitmap(size, size);
-            var width = bitmap.Width;
-            var height = bitmap.Height;
-            var widthPerPiece = width / n;
-            var heightPerPiece = height / n;
+            int size = Math.Min(pieceWidth, pieceHeight);
 
-            for (int i = 0; i < n; i++)
+
+            for (int y = 0; y < n; y++)
             {
-                for (int j = 0; j < n; j++)
+                for (int x = 0; x < n; x++)
                 {
-                    var piece = bitmap.GetSubBitmap(j * widthPerPiece, i * heightPerPiece, widthPerPiece, heightPerPiece);
-                    dict.Add(i * n + j, piece);
+                    SKRect sourceRect = new SKRect(x * size, y * size, (x + 1) * size, (y + 1) * size);
+                    SKBitmap piece = new SKBitmap(size, size);
+
+                    using (var canvas = new SKCanvas(piece))
+                    {
+                        canvas.DrawBitmap(originalImage, sourceRect, new SKRect(0, 0, size, size));
+                    }
+
+                    dict.Add(n * y + x,piece);
                 }
             }
-
-
-
             return dict;
         }
 
-        private IImage getImage(string filePath)
+        private void SliceImage()
         {
-            using var stream = File.OpenRead(filePath);
-            var image = PlatformImage.FromStream(stream);
-            return image;
+            
+
         }
     }
 }

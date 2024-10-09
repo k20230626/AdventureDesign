@@ -1,4 +1,5 @@
 ﻿using adventuredesign8puzzle.Extension;
+using SkiaSharp;
 
 namespace adventuredesign8puzzle.Views;
 
@@ -30,15 +31,14 @@ public partial class MainPage : ContentPage
         {
             for(int j = 0; j < vm.Size; j++)
             {
-                var button = new Button()
+                var button = new ImageButton()
                 {
-                    Text = puzzleContent[i,j] == 0 ? "" : puzzleContent[i,j].ToString(),
                     WidthRequest = width,
                     HeightRequest = height,
-                    FontSize = 32,
                     
                 };
-
+                button.Source = vm.BitmapTable.Count != 0 ? ImageSource.FromStream(() => vm.BitmapTable[puzzleContent[i, j]].Encode(SKEncodedImageFormat.Png, 100).AsStream())
+                    : null;
                 button.Command = vm.MoveTileCommand;
                 button.CommandParameter = (puzzleContent[i, j], 10 * i + j);
                 PuzzleContentGrid.Children.Add(button);

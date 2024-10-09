@@ -8,6 +8,6 @@ public partial class App : Application
 	{
 		InitializeComponent();
 
-		MainPage = new MainPage(new MainViewModel(new avd8puzzleService()));
+		MainPage = new MainPage(new MainViewModel(new avd8puzzleService(), new BitMapService()));
 	}
 }

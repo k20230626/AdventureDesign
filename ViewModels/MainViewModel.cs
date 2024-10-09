@@ -1,11 +1,13 @@
 ﻿using adventuredesign8puzzle.Services;
+using SkiaSharp;
 
 namespace adventuredesign8puzzle.ViewModels;
 
 
 public partial class MainViewModel : BaseViewModel
 {
-    private readonly avd8puzzleService _service;
+    private readonly avd8puzzleService puzzleService;
+    private readonly BitMapService bitMapService;
 
     /// <summary>
     /// 두번 이동하는 현상, 첫번째는 부동소수점이 포함된 값을 정수형으로 바꾸면서 2번 호출됨
@@ -19,6 +21,9 @@ public partial class MainViewModel : BaseViewModel
 
     [ObservableProperty]
     private string _imageName = "";
+
+    [ObservableProperty]
+    public Dictionary<int, SKBitmap> bitmapTable = new();
 
     private int[,] _puzzleContent = { };
 
@@ -36,9 +41,10 @@ public partial class MainViewModel : BaseViewModel
 
     public event Action<int[,]> PuzzleContentChanged;
 
-    public MainViewModel(avd8puzzleService service)
+    public MainViewModel(avd8puzzleService puzzleService, BitMapService bitMapService)
     {
-        this._service = service;
+        this.puzzleService = puzzleService;
+        this.bitMapService = bitMapService;
     }
 
     [RelayCommand]
@@ -56,12 +62,12 @@ public partial class MainViewModel : BaseViewModel
             {
                 using (var stream = await result.OpenReadAsync())
                 {
-                    PuzzleImageSource = ImageSource.FromFile(result.FullPath);
+                    PuzzleImageSource = ImageSource.FromStream(() => stream);
+                    BitmapTable = bitMapService.divideNxN(SKBitmap.Decode(stream), Size);
                 }
 
                 ImageName = result.FileName.Split(".").First();
             }
-            
         }
         catch (Exception ex)
         {
@@ -73,14 +79,14 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand]
     private void SetSize()
     {
-        PuzzleContent = _service.SetSize(Size);
+        PuzzleContent = puzzleService.SetSize(Size);
     }
     
 
     [RelayCommand]
     private void SufflePuzzle()
     {
-        PuzzleContent = _service.ShufflePuzzle();
+        PuzzleContent = puzzleService.ShufflePuzzle();
     }
 
     [RelayCommand]
