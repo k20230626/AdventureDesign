@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="adventuredesign8puzzle.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mt="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:mtl="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:vm="clr-namespace:adventuredesign8puzzle.ViewModels"
+    x:DataType="vm:MainViewModel"
+    Loaded="ContentPage_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border
+            Grid.Column="0"
+            Margin="10"
+            Padding="16"
+            BackgroundColor="{DynamicResource Primary}"
+            StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20" />
+            </Border.StrokeShape>
+
+            <StackLayout Orientation="Vertical" Spacing="10">
+                <Label FontSize="28" Text="{Binding Size, StringFormat='{}{0}-Puzzle'}" />
+                <Slider
+                    DragCompletedCommand="{Binding SetSizeCommand}"
+                    Maximum="9"
+                    Minimum="2"
+                    Value="{Binding Size, Mode=TwoWay}" />
+                <!-- <mt:ButtonView PressedCommand="{Binding SufflePuzzleCommand}">Shuffle</mt:ButtonView> -->
+
+                <Image
+                    HeightRequest="300"
+                    Source="{Binding PuzzleImageSource}"
+                    WidthRequest="300" />
+                <Label Text="{Binding ImageName}" />
+                <Button Command="{Binding PickImageCommand}" Text="파일 선택" />
+                <Button Command="{Binding SufflePuzzleCommand}" Text="파일 셔플" />
+            </StackLayout>
+        </Border>
+        <Grid
+            x:Name="PuzzleContentGrid"
+            Grid.Column="1"
+            Margin="10" />
+    </Grid>
+
+</ContentPage>
