@@ -6,6 +6,8 @@
     xmlns:mt="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
     xmlns:mtl="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
     xmlns:vm="clr-namespace:adventuredesign8puzzle.ViewModels"
+    Title="N-Puzzle"
+    
     x:DataType="vm:MainViewModel"
     Loaded="ContentPage_Loaded">
     <Grid>

@@ -3,12 +3,12 @@
 namespace adventuredesign8puzzle.Services;
 
 
-public class avd8puzzleService
+public class Avd8puzzleService
 {
     private int[,] PuzzleContent = new int[3, 3];
     private int _size = 3;
     private int emptyTile = 0;
-    public avd8puzzleService()
+    public Avd8puzzleService()
     {
         
     }
@@ -18,30 +18,34 @@ public class avd8puzzleService
         
     }
     
-    public int[,] ShufflePuzzle()
+    public  int[,] ShufflePuzzle()
     {
-        var rand = new Random();
-        int rows = _size;
-        int cols = _size;
-
-        for (int i = rows * cols - 1; i > 0; i--)
+        lock(this)
         {
-            int j = rand.Next(i + 1);
+                
+            var rand = new Random();
+            int rows = _size;
+            int cols = _size;
 
-            // 1차원 인덱스를 2차원 인덱스로 변환
-            int iRow = i / cols;
-            int iCol = i % cols;
-            int jRow = j / cols;
-            int jCol = j % cols;
+            for (int i = rows * cols - 1; i > 0; i--)
+            {
+                int j = rand.Next(i + 1);
 
-            // 요소 교환
-            int temp = PuzzleContent[iRow, iCol];
-            PuzzleContent[iRow, iCol] = PuzzleContent[jRow, jCol];
-            PuzzleContent[jRow, jCol] = temp;
+                // 1차원 인덱스를 2차원 인덱스로 변환
+                int iRow = i / cols;
+                int iCol = i % cols;
+                int jRow = j / cols;
+                int jCol = j % cols;
+
+                // 요소 교환
+                int temp = PuzzleContent[iRow, iCol];
+                PuzzleContent[iRow, iCol] = PuzzleContent[jRow, jCol];
+                PuzzleContent[jRow, jCol] = temp;
+            }
+
+            Debug.WriteLine(this.ToString());
+            return PuzzleContent;
         }
-
-        Debug.WriteLine(this.ToString());
-        return PuzzleContent;
     }
 
     public int[,] SetSize(int size)
@@ -117,6 +121,11 @@ public class avd8puzzleService
         }
 
         return false;
+    }
+
+    public int[,] MoveTile(int a)
+    {
+        return new int[1,1];
     }
     
     private int[] Dim2ToDim1()

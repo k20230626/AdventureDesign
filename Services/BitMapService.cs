@@ -12,18 +12,25 @@ using System.Reflection;
 using SkiaSharp;
 namespace adventuredesign8puzzle.Services
 {
-    public class BitMapService
+    public class BitMapService : IBitMapService
     {
-
-        public BitMapService()
+        /// <summary>
+        /// first int : image hash code
+        /// second int : size
+        /// third int : tile index
+        /// </summary>
+        private Dictionary<(int ImageHashcode,int Size), Dictionary<int, Stream>> _imageCache = new();
+        public Dictionary<int, Stream> DivideNxN(SKBitmap originalImage, int n)
         {
+            int imageHashCode = originalImage.GetHashCode();
+            var cacheKey = (imageHashCode, n);
             
+            if (_imageCache.ContainsKey(cacheKey))
+                return _imageCache[cacheKey];
 
-        }
-
-        public Dictionary<int, SKBitmap> divideNxN(SKBitmap originalImage, int n)
-        {
-            var dict = new Dictionary<int, SKBitmap>();
+            _imageCache[cacheKey] = new();
+            
+            // 이미지를 n x n 크기로 나누어서 저장
             int pieceWidth = originalImage.Width / n;
             int pieceHeight = originalImage.Height / n;
 
@@ -42,16 +49,23 @@ namespace adventuredesign8puzzle.Services
                         canvas.DrawBitmap(originalImage, sourceRect, new SKRect(0, 0, size, size));
                     }
 
-                    dict.Add(n * y + x,piece);
+                    var stream = piece.Encode(SKEncodedImageFormat.Jpeg, 100).AsStream();
+                    _imageCache[cacheKey].Add(n * y + x,stream);
                 }
             }
-            return dict;
+            return _imageCache[cacheKey];
         }
+    }
 
-        private void SliceImage()
-        {
-            
+    public interface IBitMapService
+    {
+        /// <summary>
+        /// 이미지를 n x n 크기로 나누어서 Dictionary에 순서대로 반환
+        /// </summary>
+        /// <param name="originalImage">이미지</param>
+        /// <param name="n">크기</param>
+        /// <returns></returns>
+        Dictionary<int, Stream> DivideNxN(SKBitmap originalImage, int n);
 
-        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using adventuredesign8puzzle.Extension;
+using CommunityToolkit.Maui.Alerts;
 using SkiaSharp;
 
 namespace adventuredesign8puzzle.Views;
@@ -14,14 +15,13 @@ public partial class MainPage : ContentPage
 
     private void ContentPage_Loaded(object sender, EventArgs e)
     {
-        var vm = (MainViewModel)BindingContext;
 		vm.SetSizeCommand.Execute(null);
-        vm.PuzzleContentChanged += makeGridPuzzle;
-
+        vm.PuzzleContentChanged += DrawGridPuzzle;
     }
+    
 
 
-    private void makeGridPuzzle(int[,] puzzleContent)
+    private void DrawGridPuzzle(int[,] puzzleContent)
     {
         double width = PuzzleContentGrid.Width / vm.Size;
         double height = PuzzleContentGrid.Height / vm.Size;
@@ -37,10 +37,24 @@ public partial class MainPage : ContentPage
                     HeightRequest = height,
                     
                 };
-                button.Source = vm.BitmapTable.Count != 0 ? ImageSource.FromStream(() => vm.BitmapTable[puzzleContent[i, j]].Encode(SKEncodedImageFormat.Png, 100).AsStream())
-                    : null;
+                button.Source = ImageSource.FromStream(() =>
+                {
+                    vm.BitmapTable.TryGetValue(puzzleContent[i, j], out var stream);
+                    if (stream is null)
+                    {
+                        Toast.Make("stream is null").Show();
+                        return null;
+                    }
+                        
+                    if(!stream.CanRead)
+                        Toast.Make("stream can't read").Show();
+                    return stream;
+                });
+                
+                
+
                 button.Command = vm.MoveTileCommand;
-                button.CommandParameter = (puzzleContent[i, j], 10 * i + j);
+                button.CommandParameter = (puzzleContent[i, j], vm.Size * i + j);
                 PuzzleContentGrid.Children.Add(button);
                 PuzzleContentGrid.SetRow(button, i);
                 PuzzleContentGrid.SetColumn(button,j);

@@ -1,4 +1,6 @@
 ﻿using adventuredesign8puzzle.Services;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using SkiaSharp;
 
 namespace adventuredesign8puzzle.ViewModels;
@@ -6,13 +8,13 @@ namespace adventuredesign8puzzle.ViewModels;
 
 public partial class MainViewModel : BaseViewModel
 {
-    private readonly avd8puzzleService puzzleService;
+    private readonly Avd8puzzleService puzzleService;
     private readonly BitMapService bitMapService;
 
     /// <summary>
     /// 두번 이동하는 현상, 첫번째는 부동소수점이 포함된 값을 정수형으로 바꾸면서 2번 호출됨
     /// 
-    /// </summary>
+    /// </summary
     [ObservableProperty]
     public int _size = 3;
 
@@ -22,9 +24,19 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private string _imageName = "";
 
-    [ObservableProperty]
-    public Dictionary<int, SKBitmap> bitmapTable = new();
+    
+    private Dictionary<int, Stream> _bitmapTable = new();
 
+    public Dictionary<int, Stream> BitmapTable
+    {
+        get { return _bitmapTable; }
+        set
+        {
+            SetProperty(ref _bitmapTable, value);
+            PuzzleContentChanged?.Invoke(PuzzleContent);
+        }
+    }
+    
     private int[,] _puzzleContent = { };
 
     public int[,] PuzzleContent
@@ -36,12 +48,13 @@ public partial class MainViewModel : BaseViewModel
             PuzzleContentChanged?.Invoke(value);
         }
     }
-
-
-
+    
+    private Stream ImageStream { get; set; }
+    
+    
     public event Action<int[,]> PuzzleContentChanged;
 
-    public MainViewModel(avd8puzzleService puzzleService, BitMapService bitMapService)
+    public MainViewModel(Avd8puzzleService puzzleService, BitMapService bitMapService)
     {
         this.puzzleService = puzzleService;
         this.bitMapService = bitMapService;
@@ -52,6 +65,9 @@ public partial class MainViewModel : BaseViewModel
     {
         var option = PickOptions.Images;
         
+        if(ImageStream is not null)
+            ImageStream.Dispose();
+        
         try
         {
             var result = await FilePicker.Default.PickAsync(option);
@@ -60,12 +76,13 @@ public partial class MainViewModel : BaseViewModel
             if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
                 result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
             {
-                using (var stream = await result.OpenReadAsync())
-                {
-                    PuzzleImageSource = ImageSource.FromStream(() => stream);
-                    BitmapTable = bitMapService.divideNxN(SKBitmap.Decode(stream), Size);
-                }
+                var stream = await result.OpenReadAsync();
 
+                PuzzleImageSource = ImageSource.FromFile(result.FullPath);
+                ImageStream = stream;
+                BitmapTable = bitMapService.DivideNxN(SKBitmap.Decode(ImageStream), Size);
+                
+                
                 ImageName = result.FileName.Split(".").First();
             }
         }
@@ -80,6 +97,18 @@ public partial class MainViewModel : BaseViewModel
     private void SetSize()
     {
         PuzzleContent = puzzleService.SetSize(Size);
+        if (ImageStream is not null && ImageStream.CanRead)
+        {
+            BitmapTable = bitMapService.DivideNxN(SKBitmap.Decode(ImageStream), Size);
+        }
+
+        PuzzleContentChanged?.Invoke(PuzzleContent);
+    }
+
+    [RelayCommand]
+    private void UpdatePuzzle() 
+    {
+        
     }
     
 
@@ -90,10 +119,14 @@ public partial class MainViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void MoveTile()
+    private void MoveTile((int,int) a)
     {
-
+        
     }
 
+    private IToast makeToast(string message)
+    {
+        return Toast.Make(message,ToastDuration.Short);
+    }
     
 }
