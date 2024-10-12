@@ -41,7 +41,10 @@
                     WidthRequest="300" />
                 <Label Text="{Binding ImageName}" />
                 <Button Command="{Binding PickImageCommand}" Text="파일 선택" />
-                <Button Command="{Binding SufflePuzzleCommand}" Text="파일 셔플" />
+                <Button Command="{Binding ShufflePuzzleCommand}" Text="파일 셔플" />
+                
+                <mt:CheckBox Text="숫자 보이기" CheckChangedCommand="{Binding ShowNumberCommand}"
+                             IsChecked="{Binding IsChecked}"/>
             </StackLayout>
         </Border>
         <Grid

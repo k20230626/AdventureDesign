@@ -15,14 +15,23 @@ namespace adventuredesign8puzzle.Services
     public class BitMapService : IBitMapService
     {
         /// <summary>
-        /// first int : image hash code
-        /// second int : size
-        /// third int : tile index
+        /// first int : image hash code<br/>
+        /// second int : size<br/>
+        /// third int : tile index<br/>
         /// </summary>
-        private Dictionary<(int ImageHashcode,int Size), Dictionary<int, Stream>> _imageCache = new();
-        public Dictionary<int, Stream> DivideNxN(SKBitmap originalImage, int n)
+        private Dictionary<(int ImageHashcode,int Size), Dictionary<int, SKData>> _imageCache = new();
+        
+        private int previousImageHash = 0;
+        public Dictionary<int, SKData> DivideNxN(SKBitmap originalImage, int n)
         {
             int imageHashCode = originalImage.GetHashCode();
+            
+            //다른 이미지면 캐시 클리어
+            if(previousImageHash != imageHashCode)
+            {
+                _imageCache.Clear();
+                previousImageHash = imageHashCode;
+            }
             var cacheKey = (imageHashCode, n);
             
             if (_imageCache.ContainsKey(cacheKey))
@@ -49,7 +58,7 @@ namespace adventuredesign8puzzle.Services
                         canvas.DrawBitmap(originalImage, sourceRect, new SKRect(0, 0, size, size));
                     }
 
-                    var stream = piece.Encode(SKEncodedImageFormat.Jpeg, 100).AsStream();
+                    var stream = piece.Encode(SKEncodedImageFormat.Png, 100);
                     _imageCache[cacheKey].Add(n * y + x,stream);
                 }
             }
@@ -57,6 +66,9 @@ namespace adventuredesign8puzzle.Services
         }
     }
 
+    /// <summary>
+    /// 이미지를 SKiaSharp을 써서 핸들링하는 서비스
+    /// </summary>
     public interface IBitMapService
     {
         /// <summary>
@@ -65,7 +77,7 @@ namespace adventuredesign8puzzle.Services
         /// <param name="originalImage">이미지</param>
         /// <param name="n">크기</param>
         /// <returns></returns>
-        Dictionary<int, Stream> DivideNxN(SKBitmap originalImage, int n);
+        Dictionary<int, SKData> DivideNxN(SKBitmap originalImage, int n);
 
     }
 }
