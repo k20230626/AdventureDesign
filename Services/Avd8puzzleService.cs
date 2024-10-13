@@ -57,46 +57,41 @@ public class Avd8puzzleService: IAvd8puzzleService
     }
 
 
-    public int[] MovePuzzleTile(int index) {
+    public int MovePuzzleTile(int index) {
         if (_puzzle[index] == 0)
-            return _puzzle;
-        int up,down,left,right = -1;
+            return -1;
+        int up = -1, down = -1, left = -1,right = -1;
         // [ 0, 1, 2 ]
         // [ 3, 4, 5 ]
         // [ 6, 7, 8 ]
         // 왼족 인덱스가 존재하는지는 현재 인덱스가 _size로 나누고 나머지 값이 0이면 된다.
         // 오른쪽 인덱스가 존재하는지는 현재 인덱스가 _size로 나누고 나머지 값이 _size - 1이면 된다.
-        left =  index % _size == 0 ? -1 : index - 1 ;
-        right = index % _size ==  _size - 1 ? -1 :index + 1;
-        down = index + _size > _gridSize -1 ?  -1 : index + _size;
-        up = index - _size < 0 ? -1 : index - _size;
+        left =  (index % _size == 0) ? -1 : index - 1 ;
+        right = (index % _size ==  _size - 1) ? -1 :index + 1;
+        down = (index + _size >= _gridSize) ?  -1 : index + _size;
+        up = (index - _size < 0) ? -1 : index - _size;
         
         if (left != -1 && _puzzle[left] == 0) {
             // 왼쪽으로 이동
-            var temp = _puzzle[left];
-            _puzzle[left] = _puzzle[index];
-            _puzzle[index] = temp;
+            Swaptiles(index,left);
+            return left;
         }
         else if (right != -1 && _puzzle[right] == 0) {
             // 오른쪽으로 이동
-            var temp = _puzzle[right];
-            _puzzle[right] = _puzzle[index];
-            _puzzle[index] = temp;
+            Swaptiles(index,right);
+            return right;
         }
         else if (down != -1 && _puzzle[down] == 0) {
             // 아래로 이동
-            var temp = _puzzle[down];
-            _puzzle[down] = _puzzle[index];
-            _puzzle[index] = temp;
+            Swaptiles(index,down);
+            return down;
         }
         else if (up != -1 && _puzzle[up] == 0) {
-            // 위로 이동
-            var temp = _puzzle[up];
-            _puzzle[up] = _puzzle[index];
-            _puzzle[index] = temp;
+            Swaptiles(index,up);
+            return up;
         }
 
-        return _puzzle;
+        return -1;
     }
 
     public int[] GetPuzzle() {
@@ -115,6 +110,10 @@ public class Avd8puzzleService: IAvd8puzzleService
         }
 
         return sb.ToString();
+    }
+    
+    private void Swaptiles(int fromIndex, int toIndex) {
+        (_puzzle[toIndex], _puzzle[fromIndex]) = (_puzzle[fromIndex], _puzzle[toIndex]);
     }
 }
 
@@ -142,6 +141,6 @@ public interface IAvd8puzzleService {
     /// index의 상,하,좌,우에 0이 있을 경우 0과 위치를 바꿈
     /// </summary>
     /// <param name="index">선택된 타일의 위치</param>
-    /// <returns>바뀐 puzzle</returns>
-    public int[] MovePuzzleTile(int index);
+    /// <returns>이전 `0`의 의치</returns>
+    public int MovePuzzleTile(int index);
 }

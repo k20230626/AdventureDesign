@@ -59,7 +59,9 @@ public partial class MainViewModel : BaseViewModel
                 BitmapTable = bitMapService.DivideNxN(ImageBitMap, Size);
                 
                 ImageName = result.FileName.Split(".").First();
+                PuzzleContentChanged?.Invoke(puzzleService.GetPuzzle());
             }
+            
         }
         catch (Exception ex)
         {
@@ -87,13 +89,6 @@ public partial class MainViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void UpdatePuzzle() 
-    {
-        
-    }
-    
-
-    [RelayCommand]
     private void ShufflePuzzle()
     {
         var puzzle = puzzleService.ShufflePuzzle();
@@ -104,13 +99,12 @@ public partial class MainViewModel : BaseViewModel
     [RelayCommand]
     private void MovePuzzleTile(int tileIndex)
     {
-        
-        //TODO: label
-        var puzzleTile = puzzleService.MovePuzzleTile(tileIndex);
-        var swapedIndex = puzzleTile[tileIndex];
-        if(tileIndex == swapedIndex) //안바뀌었다면 이벤트를 발생 안시킴
+        Debug.WriteLine($"tile clicked : {tileIndex}");
+        int swappedIndex = puzzleService.MovePuzzleTile(tileIndex);
+        if (swappedIndex == -1 || swappedIndex == tileIndex)
             return;
-        PuzzleTileMoved?.Invoke((tileIndex, swapedIndex));
+
+        PuzzleTileMoved?.Invoke((tileIndex, swappedIndex));
         CheckboxChanged?.Invoke(puzzleService.GetPuzzle(),IsChecked);
         Debug.WriteLine(puzzleService.ToString());
     }

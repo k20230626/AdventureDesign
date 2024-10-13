@@ -2,7 +2,8 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
 	xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+	xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+	xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material">
 
 	<Style TargetType="ActivityIndicator">
 		<Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
@@ -423,4 +424,11 @@
 		<Setter Property="SelectedTabColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource Gray200}}" />
 	</Style>
 
+	<!-- <Style TargetType="material:ButtonView" ApplyToDerivedTypes="True" CanCascade="True" BaseResourceKey="UraniumUI.Material.Controls.ButtonView.Base"> -->
+	<!-- 	<Setter Property="Background" Value="Black"/> -->
+	<!-- 	<Setter Property="Margin" Value="0"/> -->
+	<!-- 	<Setter Property="Padding" Value="0"/> -->
+	<!-- 	<Setter Property="StrokeShape" Value="{Rectangle}"/> -->
+	<!-- </Style> -->
+	
 </ResourceDictionary>
