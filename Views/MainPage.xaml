@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:adventuredesign8puzzle.ViewModels"
     Title="N-puzzle"
     x:DataType="vm:MainViewModel"
-    Loaded="ContentPage_Loaded">
+    Loaded="ContentPage_Loaded" Appearing="MainPage_OnAppearing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />

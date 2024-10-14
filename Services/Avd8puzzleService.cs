@@ -3,13 +3,13 @@
 namespace adventuredesign8puzzle.Services;
 
 
-//TODO: 0번을 마지막에 둬야하는데 이를 array 0번에 둘지 아니면 array의 마지막 숫자를 0번이라고 할지 고민임
 public class Avd8puzzleService: IAvd8puzzleService
 {
     private Random _random;
     private int _size;
     private int _gridSize;
     private int[] _puzzle;
+    private int _emptyIndex = 0;
     public Avd8puzzleService() {
         _size = 3;
         _gridSize = _size * _size;
@@ -23,9 +23,13 @@ public class Avd8puzzleService: IAvd8puzzleService
         while (n > 1) 
         {
             int k = _random.Next(n--);
-            var temp = _puzzle[n];
-            _puzzle[n] = _puzzle[k];
-            _puzzle[k] = temp;
+            //여기서 puzzle값이 0일 경우 _emptyIndex를 k로 설정
+
+            Swaptiles(n,k);
+            if (_puzzle[n] == 0)
+                _emptyIndex = n;
+            else if (_puzzle[k] == 0)
+                _emptyIndex = k;
         }
         return _puzzle;
     }
@@ -35,24 +39,24 @@ public class Avd8puzzleService: IAvd8puzzleService
         _size = size;
         _gridSize = size * size;
         _puzzle = new int[_gridSize];
-        for (int i = 0; i < _gridSize; i++) {
-            _puzzle[i] = i;
+        for (int i = 1; i < _gridSize + 1; i++) {
+            if(i == _gridSize)
+                _puzzle[i - 1] = 0;
+            else
+                _puzzle[i - 1] = i;
         }
         return _puzzle;
     }
     
     //TODO: 로직 다시만들기
     public bool IsSolved() {
-        int i = 1;
-        foreach (var item in _puzzle)
-        {
-            if (i == item)
-                continue;
-            if(i == _gridSize&& item == 0)
-                return true;
-            return false;
+        int i;
+        for (i = 0; i < _gridSize - 1; i++) {
+            if (_puzzle[i] != i + 1)
+                return false;
         }
-
+        if(i == _gridSize - 1 && _puzzle[i] == 0)
+            return true;
         return false;
     }
 
@@ -97,6 +101,56 @@ public class Avd8puzzleService: IAvd8puzzleService
     public int[] GetPuzzle() {
         return _puzzle;
     }
+
+    public int GetEmtpyIndex() {
+        return _emptyIndex;
+    }
+
+    public bool ValidateInversionCountAsBruteForce(int[] puzzle) {
+        int inversionCount = 0;
+
+        foreach (var item in _puzzle) {
+            for (int i = 0; i < _gridSize; i++) {
+                if (item == 0)
+                    continue;
+                if (item > puzzle[i] && puzzle[i] != 0)
+                    inversionCount++;
+            }
+        }
+
+        return inversionCount % 2 == 0;
+    }
+
+    public bool ValidateInversionCountAsMergeSort(int[] puzzle) {
+        int inversionCount = MergeSort(ref puzzle, 0, _gridSize - 1);
+        
+        return inversionCount % 2 == 0;
+    }
+
+    private int MergeSort(ref int[] arr, int left, int right) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            MergeSort(ref arr, left, mid);
+            MergeSort(ref arr, mid + 1, right);
+            Merge(ref arr, left, mid, right);
+        }
+
+        return 0;
+    }
+
+    private void Merge(ref int[] arr,int left,int mid,int right) {
+        
+    }
+    
+    private bool IsSolvable(int inversionCount) {
+        if (_size % 2 == 1)
+            return inversionCount % 2 == 0;
+        else {
+            return (_emptyIndex / _size) % 2 == 1 ? inversionCount % 2 == 0 : inversionCount % 2 == 1;
+        }
+        return false;
+    }
+
     public override string ToString() {
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < _size; i++)
@@ -143,4 +197,34 @@ public interface IAvd8puzzleService {
     /// <param name="index">선택된 타일의 위치</param>
     /// <returns>이전 `0`의 의치</returns>
     public int MovePuzzleTile(int index);
+
+    /// <summary>
+    /// 현재 퍼즐을 가져옴
+    /// </summary>
+    /// <returns></returns>
+    public int[] GetPuzzle();
+    
+    /// <summary>
+    /// 현재 퍼즐에서 마지막 타일을 가져옴<br/>
+    ///<br/>
+    /// 의미가 좀 애매한데<br/>
+    /// 처음 퍼즐 상태에서 마지막 인덱스 값을 가져옴<br/>
+    /// 3 * 3 이라면 8을반환
+    /// </summary>
+    /// <returns>마지막 인덱스를가져옴</returns>
+    public int GetEmtpyIndex();
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="puzzle"></param>
+    /// <returns></returns>
+    public bool ValidateInversionCountAsBruteForce(int[] puzzle);
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="puzzle"></param>
+    /// <returns></returns>
+    public bool ValidateInversionCountAsMergeSort(int[] puzzle);
 }

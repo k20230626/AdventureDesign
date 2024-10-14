@@ -1,9 +1,9 @@
 ﻿using adventuredesign8puzzle.Extension;
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core.Views;
 using Microsoft.Maui.Controls.Shapes;
-using SkiaSharp;
-using UraniumUI.Material.Controls;
 
+using UraniumUI.Material.Controls;
 namespace adventuredesign8puzzle.Views;
 
 public partial class MainPage : ContentPage {
@@ -15,17 +15,24 @@ public partial class MainPage : ContentPage {
         vm.CheckboxChanged += ButtonLabelUpdate;
         vm.PuzzleTileMoved += SwapTileImage;
         vm.PuzzleContentChanged += DrawGridPuzzle;
+        vm.ShowAlert += ShowAlert;
     }
 
-    
+    private async void ShowAlert((string title, string message) obj) {
+        
+         await DisplayAlert(obj.title,obj.message,"OK");
+    }
+
 
     private void ContentPage_Loaded(object sender, EventArgs e) {
         vm.SetSizeCommand.Execute(null);
         vm.IsChecked = true;
-
     }
 
-
+    private void MainPage_OnAppearing(object sender, EventArgs e) {
+        vm.SetSizeCommand.Execute(null);
+    }
+    
     private void DrawGridPuzzle(int[] puzzleContent) {
         double width = PuzzleContentGrid.Width / vm.Size;
         double height = PuzzleContentGrid.Height / vm.Size;
@@ -42,7 +49,13 @@ public partial class MainPage : ContentPage {
 
         _previousSize = vm.Size;
         //setup grid
-        PuzzleContentGrid.WidthRequest = size * vm.Size;
+        
+        
+        
+        //TODO: 초기 size를 맥에선 못가져온느듯
+        if (PuzzleContentGrid.WidthRequest > 0) {
+            PuzzleContentGrid.WidthRequest = size * vm.Size;
+        }
         PuzzleContentGrid.Children.Clear();
         PuzzleContentGrid.GenNxNGrid(vm.Size);
         
@@ -50,56 +63,11 @@ public partial class MainPage : ContentPage {
             for (int j = 0; j < vm.Size; j++) {
                 var index = i * vm.Size + j;
 
-                ButtonView buttonView = new ButtonView {
-                    WidthRequest = size,
-                    HeightRequest = size,
-                    StrokeShape = new Rectangle(),
-                    Padding = 0,
-                    BackgroundColor = Color.Parse("White"),
-                    PressedCommand = vm.MovePuzzleTileCommand,
-                    CommandParameter = index,
-                    StrokeThickness = 0
-                };
+                var puzzleTileView = GenPuzzleTile(size, index,ref puzzleContent);
 
-
-                var grid = new Grid {
-                    WidthRequest = size,
-                    HeightRequest = size
-                };
-
-                var label = new Label {
-                    Text = puzzleContent[index].ToString(),
-                    InputTransparent = true,
-                    FontAttributes = FontAttributes.Bold,
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    VerticalTextAlignment = TextAlignment.Center,
-                    ZIndex = 10,
-                    FontSize = 24,
-                    TextColor = Color.Parse("Black")
-                };
-
-
-                Image image = new Image {
-                    WidthRequest = size,
-                    HeightRequest = size,
-                    Source = ImageSource.FromStream(() => {
-                        vm.BitmapTable.TryGetValue(puzzleContent[index], out var stream);
-                        if (stream is null) {
-                            return null;
-                        }
-                        return stream.AsStream();
-                    })
-                };
-
-
-                grid.Children.Add(label);
-                grid.Children.Add(image);                
-                
-                buttonView.Content = grid;
-                
-                PuzzleContentGrid.Children.Add(buttonView);
-                PuzzleContentGrid.SetRow(buttonView,i);
-                PuzzleContentGrid.SetColumn(buttonView,j);
+                PuzzleContentGrid.Children.Add(puzzleTileView);
+                PuzzleContentGrid.SetRow(puzzleTileView, i);
+                PuzzleContentGrid.SetColumn(puzzleTileView, j);
             }
         }
     }
@@ -112,13 +80,9 @@ public partial class MainPage : ContentPage {
                     image = grid.Children[1] as Image;
 
                     if (image is not null) {
-                        image.Source = ImageSource.FromStream(() => {
-                            vm.BitmapTable.TryGetValue(int.Parse(((Label)grid.Children[0]).Text), out var stream);
-                            if (stream is null) {
-                                return null;
-                            }
-                            return stream.AsStream();
-                        });
+                        image.Source = ImageSource.FromStream(() =>
+                            //TODO: NUll 체크
+                            GetImageStreamFromBitmapTable(int.Parse((grid.Children[0] as Label)?.Text)));
                     }
                 }
                 
@@ -145,24 +109,79 @@ public partial class MainPage : ContentPage {
 
     
     //TODO:이게 한번더 생각해봐야할듯 이미지 부분에서 좀 꼬이는듯
-    private void SwapTileImage((int, int) tiles) {
-        var (from, to) = tiles;
-        if(vm.BitmapTable.TryGetValue(from, out var fromStream) && vm.BitmapTable.TryGetValue(to, out var toStream)) {
-            
-        }
-        var fromGrid = PuzzleContentGrid.Children[from] as Grid;
-        var toGrid = PuzzleContentGrid.Children[to] as Grid;
+    private void SwapTileImage((int, int,int[]) tiles) {
+        //ButtonImageUpdate();
+        //return;
+        var (fromIndex, toIndex,puzzle) = tiles;
+        int fromValue = puzzle[fromIndex];
+        int toValue = puzzle[toIndex];
+        
+        
+        var fromButtonContent = (PuzzleContentGrid.Children[fromIndex] as ButtonView)?.Content as Grid;
+        var toButtonContent = (PuzzleContentGrid.Children[toIndex] as ButtonView)?.Content as Grid;
 
-        if (fromGrid != null && toGrid != null) {
-            var fromButton = fromGrid.Children[1] as ImageButton;
-            var toButton = toGrid.Children[1] as ImageButton;
+        if (toButtonContent != null && fromButtonContent != null) {
+            var fromButton = fromButtonContent.Children[1] as Image;
+            var toButton = toButtonContent.Children[1] as Image;
             
             if (fromButton != null && toButton != null) {
-                //fromButton.Source = ImageSource.FromStream(() => vm.BitmapTable[to].AsStream());
-                //toButton.Source = ImageSource.FromStream(() => vm.BitmapTable[from].AsStream());
+                (fromButton.Source, toButton.Source) = (toButton.Source, fromButton.Source);
             }
         }
     }
+    //그리드 Children만드는 함수
+    private ButtonView GenPuzzleTile(int size,int index,ref int[] puzzleContent) {
+        var grid = new Grid() {
+            WidthRequest = size,
+            HeightRequest = size
+        };
+
+        var label = new Label() {
+            Text = puzzleContent[index].ToString(),
+            InputTransparent = true,
+            FontAttributes = FontAttributes.Bold,
+            HorizontalTextAlignment = TextAlignment.Center,
+            VerticalTextAlignment = TextAlignment.Center,
+            ZIndex = 10,
+            FontSize = 24,
+            TextColor = Color.Parse("White"),
+        };
+        
+        ButtonView buttonView = new ButtonView {
+            WidthRequest = size,
+            HeightRequest = size,
+            StrokeShape = new Rectangle(),
+            Padding = 0,
+            BackgroundColor = Color.Parse("White"),
+            PressedCommand = vm.MovePuzzleTileCommand,
+            CommandParameter = index,
+            StrokeThickness = 0
+        };
+
+
+        int tableIndex = puzzleContent[index];
+        Image image = new Image {
+            WidthRequest = size,
+            HeightRequest = size,
+            Source = ImageSource.FromStream(() =>
+                GetImageStreamFromBitmapTable(tableIndex))
+        };
+
+        grid.Children.Add(label);
+        grid.Children.Add(image);
+
+        buttonView.Content = grid;
+        return buttonView;
+        
+    }
     
-    
+    private Stream GetImageStreamFromBitmapTable(int value) {
+        vm.BitmapTable.TryGetValue(value, out var stream);
+        if (stream is null) {
+            return null;
+        }
+        return stream.AsStream();
+    }
+
+
 }

@@ -8,8 +8,8 @@ namespace adventuredesign8puzzle.ViewModels;
 
 public partial class MainViewModel : BaseViewModel
 {
-    private readonly Avd8puzzleService puzzleService;
-    private readonly BitMapService bitMapService;
+    private readonly IAvd8puzzleService puzzleService;
+    private readonly IBitMapService bitMapService;
     
     [ObservableProperty]
     private int _size = 3;
@@ -32,7 +32,7 @@ public partial class MainViewModel : BaseViewModel
     //TODO: 이벤트도 좀더 이름을 명확하게 해야함
     public event Action<int[]> PuzzleContentChanged;
     public event Action<int[],bool> CheckboxChanged;
-    public event Action<(int, int)> PuzzleTileMoved;
+    public event Action<(int, int, int[])> PuzzleTileMoved;
     public MainViewModel(Avd8puzzleService puzzleService, BitMapService bitMapService)
     {
         this.puzzleService = puzzleService;
@@ -96,6 +96,8 @@ public partial class MainViewModel : BaseViewModel
         PuzzleContentChanged?.Invoke(puzzle);
     }
 
+    public Action<(string title, string message)> ShowAlert; 
+    
     [RelayCommand]
     private void MovePuzzleTile(int tileIndex)
     {
@@ -103,9 +105,13 @@ public partial class MainViewModel : BaseViewModel
         int swappedIndex = puzzleService.MovePuzzleTile(tileIndex);
         if (swappedIndex == -1 || swappedIndex == tileIndex)
             return;
+        
 
-        PuzzleTileMoved?.Invoke((tileIndex, swappedIndex));
-        CheckboxChanged?.Invoke(puzzleService.GetPuzzle(),IsChecked);
+        var puzzle = puzzleService.GetPuzzle();
+        CheckboxChanged?.Invoke(puzzle,IsChecked);
+        PuzzleTileMoved?.Invoke((tileIndex, swappedIndex, puzzle));
+        if(puzzleService.IsSolved())
+            ShowAlert?.Invoke(("Congratuation","Puzzle Solved!"));        
         Debug.WriteLine(puzzleService.ToString());
     }
 

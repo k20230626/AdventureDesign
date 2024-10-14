@@ -50,16 +50,26 @@ namespace adventuredesign8puzzle.Services
             {
                 for (int x = 0; x < n; x++)
                 {
+                    int index = n * y + x;
+                    index = index == n * n - 1 ? 0 : index + 1;
                     SKRect sourceRect = new SKRect(x * size, y * size, (x + 1) * size, (y + 1) * size);
                     SKBitmap piece = new SKBitmap(size, size);
 
                     using (var canvas = new SKCanvas(piece))
                     {
                         canvas.DrawBitmap(originalImage, sourceRect, new SKRect(0, 0, size, size));
+                        if (index == 0) {
+                            using var paint = new SKPaint();
+                            paint.Color = new SKColor(0, 0, 0, 128);
+                            canvas.DrawRect(new SKRect(0, 0, size, size), paint);
+                        }
                     }
 
                     var stream = piece.Encode(SKEncodedImageFormat.Png, 100);
-                    _imageCache[cacheKey].Add(n * y + x,stream);
+                    
+                    //퍼즐 숫자 보정
+                    
+                    _imageCache[cacheKey].Add(index,stream);
                 }
             }
             return _imageCache[cacheKey];
