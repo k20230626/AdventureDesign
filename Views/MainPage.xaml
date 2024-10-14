@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:adventuredesign8puzzle.ViewModels"
     Title="N-puzzle"
     x:DataType="vm:MainViewModel"
-    Loaded="ContentPage_Loaded" Appearing="MainPage_OnAppearing">
+    Loaded="ContentPage_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />
@@ -42,7 +42,8 @@
                     <Image
                         Source="{Binding PuzzleImageSource}"
                         Aspect="AspectFill"
-                        WidthRequest="280"
+                        Height="280"
+                        Width="280"
                         HorizontalOptions="Center"
                         />
                 </Frame>

@@ -3,33 +3,39 @@
 namespace adventuredesign8puzzle.Services;
 
 
-public class Avd8puzzleService: IAvd8puzzleService
+public class Avd8PuzzleService: IAvd8puzzleService
 {
     private Random _random;
     private int _size;
     private int _gridSize;
     private int[] _puzzle;
     private int _emptyIndex = 0;
-    public Avd8puzzleService() {
+    public Avd8PuzzleService() {
         _size = 3;
         _gridSize = _size * _size;
         _puzzle = new int[_gridSize];
         _random = new Random();
     }
-    
+
+    private int _ShuffleCount = 0;
     public int[] ShufflePuzzle()
     {
         int n = _gridSize;
         while (n > 1) 
         {
             int k = _random.Next(n--);
-            //여기서 puzzle값이 0일 경우 _emptyIndex를 k로 설정
-
-            Swaptiles(n,k);
+            SwapTiles(n,k);
             if (_puzzle[n] == 0)
                 _emptyIndex = n;
             else if (_puzzle[k] == 0)
                 _emptyIndex = k;
+        }
+        
+        bool isValidate = ValidateInversionCountAsMergeSort(_puzzle);
+        if (!isValidate)
+        {
+            _ShuffleCount++;
+            return ShufflePuzzle();
         }
         return _puzzle;
     }
@@ -77,21 +83,21 @@ public class Avd8puzzleService: IAvd8puzzleService
         
         if (left != -1 && _puzzle[left] == 0) {
             // 왼쪽으로 이동
-            Swaptiles(index,left);
+            SwapTiles(index,left);
             return left;
         }
         else if (right != -1 && _puzzle[right] == 0) {
             // 오른쪽으로 이동
-            Swaptiles(index,right);
+            SwapTiles(index,right);
             return right;
         }
         else if (down != -1 && _puzzle[down] == 0) {
             // 아래로 이동
-            Swaptiles(index,down);
+            SwapTiles(index,down);
             return down;
         }
         else if (up != -1 && _puzzle[up] == 0) {
-            Swaptiles(index,up);
+            SwapTiles(index,up);
             return up;
         }
 
@@ -102,53 +108,94 @@ public class Avd8puzzleService: IAvd8puzzleService
         return _puzzle;
     }
 
-    public int GetEmtpyIndex() {
-        return _emptyIndex;
-    }
-
     public bool ValidateInversionCountAsBruteForce(int[] puzzle) {
         int inversionCount = 0;
-
-        foreach (var item in _puzzle) {
-            for (int i = 0; i < _gridSize; i++) {
-                if (item == 0)
-                    continue;
-                if (item > puzzle[i] && puzzle[i] != 0)
+        int n = puzzle.Length;
+        for (int i = 0; i < n - 1; i++)
+        {
+            for (int j = i + 1; j < n; j++)
+            {
+                if (puzzle[i] > puzzle[j])
+                {
                     inversionCount++;
+                }
             }
         }
 
-        return inversionCount % 2 == 0;
+        return IsSolvable(inversionCount);
     }
 
     public bool ValidateInversionCountAsMergeSort(int[] puzzle) {
-        int inversionCount = MergeSort(ref puzzle, 0, _gridSize - 1);
+        var cpPuzzle = new int[puzzle.Length];
+        //int[] puzzle을 넣게 되면 퍼즐이 정렬됨;;
+        Array.Copy(puzzle,cpPuzzle,puzzle.Length);
         
-        return inversionCount % 2 == 0;
+        int inversionCount = MergeSort(cpPuzzle, new int[puzzle.Length], 0, _gridSize - 1);
+        return IsSolvable(inversionCount);
     }
 
-    private int MergeSort(ref int[] arr, int left, int right) {
-        if (left < right) {
-            int mid = (left + right) / 2;
-            MergeSort(ref arr, left, mid);
-            MergeSort(ref arr, mid + 1, right);
-            Merge(ref arr, left, mid, right);
+    private int MergeSort(int[] arr, int[] temp, int left, int right){
+        int mid, inversionCount = 0;
+        if (left < right)
+        {
+            mid = (left + right) / 2;
+
+            // 왼쪽 절반에서의 inversion 개수
+            inversionCount += MergeSort(arr, temp, left, mid);
+
+            // 오른쪽 절반에서의 inversion 개수
+            inversionCount += MergeSort(arr, temp, mid + 1, right);
+
+            // 병합 시 발생하는 inversion 개수
+            inversionCount += Merge(arr, temp, left, mid, right);
         }
+        return inversionCount;
+
 
         return 0;
     }
 
-    private void Merge(ref int[] arr,int left,int mid,int right) {
-        
+    private int Merge(int[] arr, int[] temp, int left, int mid, int right) {
+        int i = left;    // 왼쪽 배열의 시작 인덱스
+        int j = mid + 1; // 오른쪽 배열의 시작 인덱스
+        int k = left;    // 임시 배열의 시작 인덱스
+        int inversionCount = 0;
+
+        while (i <= mid && j <= right)
+        {
+            if (arr[i] <= arr[j])
+            {
+                temp[k++] = arr[i++];
+            }
+            else
+            {
+                temp[k++] = arr[j++];
+                inversionCount += (mid + 1) - i;  // 왼쪽 배열에서 남은 요소의 수만큼 inversion 발생
+            }
+        }
+
+        // 남은 왼쪽 배열 복사
+        while (i <= mid)
+            temp[k++] = arr[i++];
+
+        // 남은 오른쪽 배열 복사
+        while (j <= right)
+            temp[k++] = arr[j++];
+
+        // 원본 배열로 복사
+        for (i = left; i <= right; i++)
+            arr[i] = temp[i];
+
+        return inversionCount;
     }
     
     private bool IsSolvable(int inversionCount) {
         if (_size % 2 == 1)
             return inversionCount % 2 == 0;
-        else {
-            return (_emptyIndex / _size) % 2 == 1 ? inversionCount % 2 == 0 : inversionCount % 2 == 1;
-        }
-        return false;
+        
+        return (_emptyIndex / _size) % 2 == 1 ? inversionCount % 2 == 0 : inversionCount % 2 == 1;
+        
+        
     }
 
     public override string ToString() {
@@ -166,7 +213,7 @@ public class Avd8puzzleService: IAvd8puzzleService
         return sb.ToString();
     }
     
-    private void Swaptiles(int fromIndex, int toIndex) {
+    private void SwapTiles(int fromIndex, int toIndex) {
         (_puzzle[toIndex], _puzzle[fromIndex]) = (_puzzle[fromIndex], _puzzle[toIndex]);
     }
 }
@@ -204,15 +251,6 @@ public interface IAvd8puzzleService {
     /// <returns></returns>
     public int[] GetPuzzle();
     
-    /// <summary>
-    /// 현재 퍼즐에서 마지막 타일을 가져옴<br/>
-    ///<br/>
-    /// 의미가 좀 애매한데<br/>
-    /// 처음 퍼즐 상태에서 마지막 인덱스 값을 가져옴<br/>
-    /// 3 * 3 이라면 8을반환
-    /// </summary>
-    /// <returns>마지막 인덱스를가져옴</returns>
-    public int GetEmtpyIndex();
     
     /// <summary>
     /// 

@@ -26,10 +26,6 @@ public partial class MainPage : ContentPage {
         vm.SetSizeCommand.Execute(null);
         vm.IsChecked = true;
     }
-
-    private void MainPage_OnAppearing(object sender, EventArgs e) {
-        vm.SetSizeCommand.Execute(null);
-    }
     
     private void DrawGridPuzzle(int[] puzzleContent) {
         double width = PuzzleContentGrid.Width / vm.Size;
@@ -47,9 +43,7 @@ public partial class MainPage : ContentPage {
 
         _previousSize = vm.Size;
         //TODO: 초기 size를 맥에선 못가져온느듯
-        if (PuzzleContentGrid.WidthRequest > 0) {
-            PuzzleContentGrid.WidthRequest = size * vm.Size;
-        }
+        PuzzleContentGrid.WidthRequest = width * vm.Size;
         PuzzleContentGrid.Children.Clear();
         PuzzleContentGrid.GenNxNGrid(vm.Size);
         
@@ -122,11 +116,10 @@ public partial class MainPage : ContentPage {
             var toImage = toButtonContent.Children[1] as Image;
             
             if (fromImage is not null && toImage is not null) {
-                fromImage.Source = ImageSource.FromStream(() => vm.BitmapTable[fromValue].AsStream());
-                toImage.Source = ImageSource.FromStream(() => vm.BitmapTable[toValue].AsStream());
+                fromImage.Source = ImageSource.FromStream(() => GetImageStreamFromBitmapTable(fromValue));
+                toImage.Source = ImageSource.FromStream(() => GetImageStreamFromBitmapTable(toValue));
             }
         }
-        PuzzleContentGrid.InvalidateMeasureNonVirtual(InvalidationTrigger.MeasureChanged);
     }
     //그리드 Children만드는 함수
     private ButtonView GenPuzzleTile(int size,int index,ref int[] puzzleContent) {
@@ -142,8 +135,8 @@ public partial class MainPage : ContentPage {
             HorizontalTextAlignment = TextAlignment.Center,
             VerticalTextAlignment = TextAlignment.Center,
             ZIndex = 10,
-            FontSize = 24,
-            TextColor = Color.Parse("White"),
+            FontSize = 36,
+            TextColor = Color.Parse("Black"),
         };
         
         ButtonView buttonView = new ButtonView {

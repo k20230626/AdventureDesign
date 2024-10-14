@@ -33,7 +33,7 @@ public partial class MainViewModel : BaseViewModel
     public event Action<int[]> PuzzleContentChanged;
     public event Action<int[],bool> CheckboxChanged;
     public event Action<(int, int, int[])> PuzzleTileMoved;
-    public MainViewModel(Avd8puzzleService puzzleService, BitMapService bitMapService)
+    public MainViewModel(Avd8PuzzleService puzzleService, BitMapService bitMapService)
     {
         this.puzzleService = puzzleService;
         this.bitMapService = bitMapService;
