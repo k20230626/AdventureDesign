@@ -30,8 +30,19 @@ public class Avd8PuzzleService: IAvd8puzzleService
             else if (_puzzle[k] == 0)
                 _emptyIndex = k;
         }
-        
+
+
         bool isValidate = ValidateInversionCountAsMergeSort(_puzzle);
+
+#if DEBUG
+        bool debugValidate = ValidateInversionCountAsBruteForce(_puzzle);
+        if (isValidate != debugValidate)
+        {
+            throw new Exception("Validate Error");
+        }
+#endif
+
+
         if (!isValidate)
         {
             _ShuffleCount++;
@@ -54,7 +65,6 @@ public class Avd8PuzzleService: IAvd8puzzleService
         return _puzzle;
     }
     
-    //TODO: 로직 다시만들기
     public bool IsSolved() {
         int i;
         for (i = 0; i < _gridSize - 1; i++) {
@@ -97,10 +107,12 @@ public class Avd8PuzzleService: IAvd8puzzleService
             return down;
         }
         else if (up != -1 && _puzzle[up] == 0) {
+            // 위로 이동
             SwapTiles(index,up);
             return up;
         }
 
+        //이동 안할시 - 1 반환 
         return -1;
     }
 

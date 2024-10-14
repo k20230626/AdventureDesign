@@ -32,9 +32,9 @@ public partial class MainPage : ContentPage {
         double height = PuzzleContentGrid.Height / vm.Size;
 
         int size = (int)Math.Min(width, height);
-        //TODO: 지금 여기 그리드를 계속 그리고 있는데 셔플할 경우에는 이 경우가 필요가 없음
-        //TODO: 즉 그리드 그리는데 많은 리소스를 잡아 먹음
 
+
+        //그리드 사이즈가 같을 경우 새로운 그리드를 그리는것을 방지
         if (_previousSize == vm.Size) {
             ButtonLabelUpdate(puzzleContent,vm.IsChecked);
             ButtonImageUpdate();
@@ -42,11 +42,14 @@ public partial class MainPage : ContentPage {
         }
 
         _previousSize = vm.Size;
-        //TODO: 초기 size를 맥에선 못가져온느듯
-        PuzzleContentGrid.WidthRequest = width * vm.Size;
         PuzzleContentGrid.Children.Clear();
         PuzzleContentGrid.GenNxNGrid(vm.Size);
-        
+        //초기 size를 맥,안드로이드에선 못가져온느듯
+        //좀더 생각을 해봐야할듯
+#if WINDOWS
+        PuzzleContentGrid.WidthRequest = vm.Size * size;
+#endif
+
         for (int i = 0; i < vm.Size; i++) {
             for (int j = 0; j < vm.Size; j++) {
                 var index = i * vm.Size + j;
@@ -59,7 +62,7 @@ public partial class MainPage : ContentPage {
             }
         }
     }
-
+//Google Play Intel x86_64 Atom System Image
     private void ButtonImageUpdate() {
         foreach (var view in PuzzleContentGrid) {
             if (view is ButtonView buttonView) {
@@ -121,7 +124,7 @@ public partial class MainPage : ContentPage {
             }
         }
     }
-    //그리드 Children만드는 함수
+    //그리드 Children 버튼 타일 만드는 함수
     private ButtonView GenPuzzleTile(int size,int index,ref int[] puzzleContent) {
         var grid = new Grid() {
             WidthRequest = size,

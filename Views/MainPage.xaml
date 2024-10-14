@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <ContentPage
     x:Class="adventuredesign8puzzle.Views.MainPage"
@@ -27,7 +27,7 @@
             </Border.StrokeShape>
 
             <StackLayout Orientation="Vertical" Spacing="10">
-                <Label FontSize="28" Text="{Binding Size, StringFormat='{}{0}-Puzzle'}" />
+                <Label FontSize="28" Text="{Binding TitleNumber, StringFormat='{}{0}-Puzzle'}" />
                 <Slider
                     DragCompletedCommand="{Binding SetSizeCommand}"
                     Maximum="9"
@@ -35,24 +35,29 @@
                     Value="{Binding Size, Mode=TwoWay}" />
 
 
-                <Frame CornerRadius="10"
-                       BorderColor="Transparent"
-                       BackgroundColor="Transparent"
-                       IsClippedToBounds="True">
+                <Frame
+                    BackgroundColor="Transparent"
+                    BorderColor="Transparent"
+                    CornerRadius="10"
+                    IsClippedToBounds="True">
                     <Image
-                        Source="{Binding PuzzleImageSource}"
-                        Aspect="AspectFill"
-                        Height="280"
                         Width="280"
+                        Height="280"
+                        Aspect="AspectFill"
                         HorizontalOptions="Center"
-                        />
+                        Source="{Binding PuzzleImageSource}" />
                 </Frame>
 
-                <Label Text="{Binding ImageName}" FontAttributes="Bold" FontSize="24" />
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="24"
+                    Text="{Binding ImageName}" />
                 <Button Command="{Binding PickImageCommand}" Text="이미지 선택" />
                 <Button Command="{Binding ShufflePuzzleCommand}" Text="타일 셔플" />
-                <mt:CheckBox Text="숫자 보이기" CheckChangedCommand="{Binding ShowNumberCommand}"
-                             IsChecked="{Binding IsChecked}" />
+                <mt:CheckBox
+                    CheckChangedCommand="{Binding ShowNumberCommand}"
+                    IsChecked="{Binding IsChecked}"
+                    Text="숫자 보이기" />
             </StackLayout>
         </Border>
         <Grid

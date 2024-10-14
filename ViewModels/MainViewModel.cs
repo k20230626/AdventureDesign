@@ -14,6 +14,9 @@ public partial class MainViewModel : BaseViewModel
     [ObservableProperty]
     private int _size = 3;
 
+    [ObservableProperty]
+    private int _titleNumber = 8;
+
     [ObservableProperty] 
     private ImageSource _puzzleImageSource = "";
 
@@ -74,6 +77,7 @@ public partial class MainViewModel : BaseViewModel
     private void SetSize()
     {
         var puzzle = puzzleService.GenNPuzzle(Size);
+        TitleNumber = Size * Size - 1;
         Debug.WriteLine(puzzleService.ToString());
         if (ImageBitMap is not null)
         {
@@ -111,7 +115,7 @@ public partial class MainViewModel : BaseViewModel
         CheckboxChanged?.Invoke(puzzle,IsChecked);
         PuzzleTileMoved?.Invoke((tileIndex, swappedIndex, puzzle));
         if(puzzleService.IsSolved())
-            ShowAlert?.Invoke(("Congratuation","Puzzle Solved!"));        
+            ShowAlert?.Invoke(("Congratulation","Puzzle Solved!"));        
         Debug.WriteLine(puzzleService.ToString());
     }
 
