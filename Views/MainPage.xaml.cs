@@ -1,8 +1,6 @@
 ﻿using adventuredesign8puzzle.Extension;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core.Views;
+using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Controls.Shapes;
-
 using UraniumUI.Material.Controls;
 namespace adventuredesign8puzzle.Views;
 
@@ -48,10 +46,6 @@ public partial class MainPage : ContentPage {
         }
 
         _previousSize = vm.Size;
-        //setup grid
-        
-        
-        
         //TODO: 초기 size를 맥에선 못가져온느듯
         if (PuzzleContentGrid.WidthRequest > 0) {
             PuzzleContentGrid.WidthRequest = size * vm.Size;
@@ -112,6 +106,7 @@ public partial class MainPage : ContentPage {
     private void SwapTileImage((int, int,int[]) tiles) {
         //ButtonImageUpdate();
         //return;
+        //잠만 감좀 잡히는
         var (fromIndex, toIndex,puzzle) = tiles;
         int fromValue = puzzle[fromIndex];
         int toValue = puzzle[toIndex];
@@ -120,14 +115,18 @@ public partial class MainPage : ContentPage {
         var fromButtonContent = (PuzzleContentGrid.Children[fromIndex] as ButtonView)?.Content as Grid;
         var toButtonContent = (PuzzleContentGrid.Children[toIndex] as ButtonView)?.Content as Grid;
 
+        
+        
         if (toButtonContent != null && fromButtonContent != null) {
-            var fromButton = fromButtonContent.Children[1] as Image;
-            var toButton = toButtonContent.Children[1] as Image;
+            var fromImage = fromButtonContent.Children[1] as Image;
+            var toImage = toButtonContent.Children[1] as Image;
             
-            if (fromButton != null && toButton != null) {
-                (fromButton.Source, toButton.Source) = (toButton.Source, fromButton.Source);
+            if (fromImage is not null && toImage is not null) {
+                fromImage.Source = ImageSource.FromStream(() => vm.BitmapTable[fromValue].AsStream());
+                toImage.Source = ImageSource.FromStream(() => vm.BitmapTable[toValue].AsStream());
             }
         }
+        PuzzleContentGrid.InvalidateMeasureNonVirtual(InvalidationTrigger.MeasureChanged);
     }
     //그리드 Children만드는 함수
     private ButtonView GenPuzzleTile(int size,int index,ref int[] puzzleContent) {
