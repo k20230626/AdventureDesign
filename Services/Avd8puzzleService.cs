@@ -20,34 +20,32 @@ public class Avd8PuzzleService: IAvd8puzzleService
     private int _shuffleCount = 0;
     public int[] ShufflePuzzle()
     {
-        int n = _gridSize;
-        while (n > 1) 
-        {
-            int k = _random.Next(n--);
-            SwapTiles(n,k);
-            if (_puzzle[n] == 0)
-                _emptyIndex = n;
-            else if (_puzzle[k] == 0)
-                _emptyIndex = k;
-        }
+        while (true) {
+            
+            var n = _gridSize;
+            while (n > 1) 
+            {
+                int k = _random.Next(n--);
+                SwapTiles(n,k);
+                if (_puzzle[n] == 0)
+                    _emptyIndex = n;
+                else if (_puzzle[k] == 0)
+                    _emptyIndex = k;
+            }
+            bool isValidate = ValidateInversionCountAsMergeSort();
 
-
-        bool isValidate = ValidateInversionCountAsMergeSort(_puzzle);
-
-#if DEBUG
-        bool debugValidate = ValidateInversionCountAsBruteForce(_puzzle);
-        if (isValidate != debugValidate)
-        {
-            throw new Exception("Validate Error");
-        }
-#endif
-
-
-        if (!isValidate)
-        {
+    #if DEBUG
+            bool debugValidate = ValidateInversionCountAsBruteForce();
+            if (isValidate != debugValidate)
+            {
+                throw new Exception("Validate Error");
+            }
+    #endif
+            if (isValidate)
+                break; 
             _shuffleCount++;
-            return ShufflePuzzle();
         }
+        Debug.WriteLine($"Shuffle Count : {_shuffleCount}");
         return _puzzle;
     }
 
@@ -120,29 +118,27 @@ public class Avd8PuzzleService: IAvd8puzzleService
         return _puzzle;
     }
 
-    public bool ValidateInversionCountAsBruteForce(int[] puzzle) {
+    public bool ValidateInversionCountAsBruteForce() {
         int inversionCount = 0;
-        int n = puzzle.Length;
+        int n = _puzzle.Length;
         for (int i = 0; i < n - 1; i++)
-        {
             for (int j = i + 1; j < n; j++)
-            {
-                if (puzzle[i] > puzzle[j])
-                {
+                if (_puzzle[i] > 0 && _puzzle[j] > 0 && _puzzle[i] > _puzzle[j])
                     inversionCount++;
-                }
-            }
-        }
+        
 
         return IsSolvable(inversionCount);
     }
 
-    public bool ValidateInversionCountAsMergeSort(int[] puzzle) {
-        var cpPuzzle = new int[puzzle.Length];
+    public bool ValidateInversionCountAsMergeSort() {
+        var cpPuzzle = new int[_gridSize];
         //int[] puzzle을 넣게 되면 퍼즐이 정렬됨;;
-        Array.Copy(puzzle,cpPuzzle,puzzle.Length);
-        
-        int inversionCount = MergeSort(cpPuzzle, new int[puzzle.Length], 0, _gridSize - 1);
+        Array.Copy(_puzzle,cpPuzzle,_gridSize);
+
+        var zeroRemovedPuzzle = cpPuzzle.Where(x => x != 0).ToArray();
+
+        int inversionCount = MergeSort(zeroRemovedPuzzle, new int[_gridSize - 1], 0, _gridSize - 2);
+        Debug.WriteLine($"MergeSort Inversion Count : {inversionCount}");
         return IsSolvable(inversionCount);
     }
 
@@ -202,9 +198,11 @@ public class Avd8PuzzleService: IAvd8puzzleService
     }
     
     private bool IsSolvable(int inversionCount) {
-        if (_size % 2 == 1)
+        if (_gridSize % 2 == 1) {
+            Debug.WriteLine($"isSolvelable : {inversionCount % 2 == 0}");
             return inversionCount % 2 == 0;
-        return (_emptyIndex / _size) % 2 == 1 ? inversionCount % 2 == 0 : inversionCount % 2 == 1;
+        }
+        return (_size - _emptyIndex / _size) % 2 == 1 ? inversionCount % 2 == 0 : inversionCount % 2 == 1;
     }
 
     public override string ToString() {
@@ -260,18 +258,15 @@ public interface IAvd8puzzleService {
     /// <returns></returns>
     public int[] GetPuzzle();
     
-    
     /// <summary>
     /// BruteForce로 inversion count를 계산하여 퍼즐이 풀 수 있는지 확인
     /// </summary>
-    /// <param name="puzzle"></param>
     /// <returns></returns>
-    public bool ValidateInversionCountAsBruteForce(int[] puzzle);
+    public bool ValidateInversionCountAsBruteForce();
     
     /// <summary>
     /// MergeSort로 inversion count를 계산하여 퍼즐이 풀 수 있는지 확인
     /// </summary>
-    /// <param name="puzzle"></param>
     /// <returns></returns>
-    public bool ValidateInversionCountAsMergeSort(int[] puzzle);
+    public bool ValidateInversionCountAsMergeSort();
 }
