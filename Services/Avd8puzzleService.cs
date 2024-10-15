@@ -5,7 +5,7 @@ namespace adventuredesign8puzzle.Services;
 
 public class Avd8PuzzleService: IAvd8puzzleService
 {
-    private Random _random;
+    private readonly Random _random;
     private int _size;
     private int _gridSize;
     private int[] _puzzle;
@@ -17,7 +17,7 @@ public class Avd8PuzzleService: IAvd8puzzleService
         _random = new Random();
     }
 
-    private int _ShuffleCount = 0;
+    private int _shuffleCount = 0;
     public int[] ShufflePuzzle()
     {
         int n = _gridSize;
@@ -45,7 +45,7 @@ public class Avd8PuzzleService: IAvd8puzzleService
 
         if (!isValidate)
         {
-            _ShuffleCount++;
+            _shuffleCount++;
             return ShufflePuzzle();
         }
         return _puzzle;
@@ -204,10 +204,7 @@ public class Avd8PuzzleService: IAvd8puzzleService
     private bool IsSolvable(int inversionCount) {
         if (_size % 2 == 1)
             return inversionCount % 2 == 0;
-        
         return (_emptyIndex / _size) % 2 == 1 ? inversionCount % 2 == 0 : inversionCount % 2 == 1;
-        
-        
     }
 
     public override string ToString() {
@@ -265,14 +262,14 @@ public interface IAvd8puzzleService {
     
     
     /// <summary>
-    /// 
+    /// BruteForce로 inversion count를 계산하여 퍼즐이 풀 수 있는지 확인
     /// </summary>
     /// <param name="puzzle"></param>
     /// <returns></returns>
     public bool ValidateInversionCountAsBruteForce(int[] puzzle);
     
     /// <summary>
-    /// 
+    /// MergeSort로 inversion count를 계산하여 퍼즐이 풀 수 있는지 확인
     /// </summary>
     /// <param name="puzzle"></param>
     /// <returns></returns>
