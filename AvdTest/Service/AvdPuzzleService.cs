@@ -1,6 +1,7 @@
-﻿using System.Text;
+using System.Diagnostics;
+using System.Text;
 
-namespace adventuredesign8puzzle.Services;
+namespace AvdTest.Service;
 
 
 public class Avd8PuzzleService: IAvd8puzzleService
@@ -144,6 +145,10 @@ public class Avd8PuzzleService: IAvd8puzzleService
         return IsSolvable(inversionCount);
     }
 
+    public void CopyArray(int[] arr) {
+        Array.Copy(arr,_puzzle,_gridSize);
+    }
+
     private int MergeSort(int[] arr, int[] temp, int left, int right){
         int mid, inversionCount = 0;
         if (left < right)
@@ -274,6 +279,6 @@ public interface IAvd8puzzleService {
     /// </summary>
     /// <returns></returns>
     public bool ValidateInversionCountAsMergeSort();
-    
-    
+
+    public void CopyArray(int[] arr);
 }

@@ -46,9 +46,13 @@ public partial class MainPage : ContentPage {
         PuzzleContentGrid.GenNxNGrid(vm.Size);
         //초기 size를 맥,안드로이드에선 못가져온느듯
         //좀더 생각을 해봐야할듯
-#if WINDOWS
-        PuzzleContentGrid.WidthRequest = vm.Size * size;
-#endif
+        if (size < 0) {
+            PuzzleContentGrid.WidthRequest = vm.Size * size;
+        }
+        else {
+            size = (int)(Window.Height / vm.Size) - 20;
+            PuzzleContentGrid.WidthRequest = vm.Size * size;
+        }
 
         for (int i = 0; i < vm.Size; i++) {
             for (int j = 0; j < vm.Size; j++) {
@@ -62,7 +66,6 @@ public partial class MainPage : ContentPage {
             }
         }
     }
-//Google Play Intel x86_64 Atom System Image
     private void ButtonImageUpdate() {
         foreach (var view in PuzzleContentGrid) {
             if (view is ButtonView buttonView) {
@@ -108,11 +111,8 @@ public partial class MainPage : ContentPage {
         int fromValue = puzzle[fromIndex];
         int toValue = puzzle[toIndex];
         
-        
         var fromButtonContent = (PuzzleContentGrid.Children[fromIndex] as ButtonView)?.Content as Grid;
         var toButtonContent = (PuzzleContentGrid.Children[toIndex] as ButtonView)?.Content as Grid;
-
-        
         
         if (toButtonContent != null && fromButtonContent != null) {
             var fromImage = fromButtonContent.Children[1] as Image;

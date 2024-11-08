@@ -34,15 +34,14 @@
                     Minimum="2"
                     Value="{Binding Size, Mode=TwoWay}" />
 
-
                 <Frame
                     BackgroundColor="Transparent"
                     BorderColor="Transparent"
                     CornerRadius="10"
                     IsClippedToBounds="True">
                     <Image
-                        Width="280"
-                        Height="280"
+                        MaximumWidthRequest="280"
+                        MaximumHeightRequest="280"
                         Aspect="AspectFill"
                         HorizontalOptions="Center"
                         Source="{Binding PuzzleImageSource}" />

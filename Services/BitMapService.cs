@@ -14,11 +14,6 @@ namespace adventuredesign8puzzle.Services
 {
     public class BitMapService : IBitMapService
     {
-        /// <summary>
-        /// first int : image hash code<br/>
-        /// second int : size<br/>
-        /// third int : tile index<br/>
-        /// </summary>
         private Dictionary<(int ImageHashcode,int Size), Dictionary<int, SKData>> _imageCache = new();
         
         private int previousImageHash = 0;
@@ -77,7 +72,7 @@ namespace adventuredesign8puzzle.Services
     }
 
     /// <summary>
-    /// 이미지를 SKiaSharp을 써서 핸들링하는 서비스
+    /// 이미지를 SKiaSharp을 사용한 이미지 핸들링하는 서비스
     /// </summary>
     public interface IBitMapService
     {

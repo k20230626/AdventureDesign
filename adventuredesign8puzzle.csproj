@@ -71,6 +71,30 @@
 		<BundleResource Include="Platforms\iOS\PrivacyInfo.xcprivacy" LogicalName="PrivacyInfo.xcprivacy" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Remove="AvdTest\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiCss Remove="AvdTest\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="AvdTest\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Remove="AvdTest\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AndroidAarLibrary Remove="AvdTest\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="AvdTest\**" />
+	</ItemGroup>
+
 	<PropertyGroup Label="MauiAppAccelerator">
 		<wizardVersion>v1.5</wizardVersion>
 		<projectType>MVVMToolkit</projectType>
