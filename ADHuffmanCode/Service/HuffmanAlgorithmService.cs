@@ -68,52 +68,52 @@ public class HuffmanAlgorithmService : IHuffmanAlgorithmService {
             else
                 throw new InvalidOperationException($"Character '{ch}' not found in Huffman Tree.");
         }
-        
-        var format = new ADHFFileFormat {
-            FrequencyDict = frequencyDict,
-            CompressedData = encodedText.ToString()
-        };
-        
-        int originalSize = text.Length * 8; 
+
+        int originalSize = text.Length * 8;
         int compressedSize = encodedText.Length;
 
         double compressionRatio = (1 - ((double)compressedSize / originalSize)) * 100;
         int savedSpace = originalSize - compressedSize;
 
-        WeakReferenceMessenger.Default.Send<CompressInfoMessage>(new CompressInfoMessage(new CompressInfo(compressionRatio,savedSpace)));
-        
-        Debug.WriteLine($"Compression Ratio: {compressionRatio:F2}%");
-        Debug.WriteLine($"Saved Space: {savedSpace} bits");
-        
-        return JsonSerializer.Serialize(format);
+        WeakReferenceMessenger.Default.Send<CompressInfoMessage>(
+            new CompressInfoMessage(new CompressInfo(compressionRatio, savedSpace)));
+
+
+        return encodedText.ToString();
     }
 
-    public string Decode(string encodedText) {
-        try {
-            _root = null;
-            var data = JsonSerializer.Deserialize<ADHFFileFormat>(encodedText);
-            this.BuildHuffmanTree(data.FrequencyDict);
-            
-            if (_root == null)
-                throw new InvalidOperationException("Huffman Tree is not built.");
+    public string Decode(BinaryReader reader) {
+        int dictCount = reader.ReadInt32();
+        var frequencyDict = new Dictionary<char, int>();
+        for (int i = 0; i < dictCount; i++) {
+            char character = reader.ReadChar();
+            int frequency = reader.ReadInt32();
+            frequencyDict[character] = frequency;
+        }
 
-            var currentNode = _root;
-            var decodedText = new StringBuilder();
+        this.BuildHuffmanTree(frequencyDict);
+        if (_root == null)
+            throw new InvalidOperationException("Huffman Tree is not built.");
 
-            foreach (var bit in data.CompressedData) {
-                currentNode = bit == '0' ? currentNode.Left : currentNode.Right;
+        var currentNode = _root;
+        var decodedText = new StringBuilder();
+
+
+        while (reader.BaseStream.Position < reader.BaseStream.Length) {
+            byte byteRead = reader.ReadByte();
+            for (int i = 7; i >= 0; i--) {
+                bool bit = (byteRead & (1 << i)) != 0;
+                currentNode = bit ? currentNode.Right : currentNode.Left;
 
                 if (currentNode.Left == null && currentNode.Right == null) {
                     decodedText.Append(currentNode.Character);
                     currentNode = _root;
                 }
             }
+        }
 
-            return decodedText.ToString();
-        }
-        catch (Exception e) {
-            return e.Message;
-        }
+
+        return decodedText.ToString();
     }
 
     public Dictionary<char, string> GetHuffmanCodes() {
@@ -134,7 +134,7 @@ public class HuffmanAlgorithmService : IHuffmanAlgorithmService {
     }
 
 
-    private Dictionary<char, int> CountFrequencies(string text) {
+    public Dictionary<char, int> CountFrequencies(string text) {
         if (string.IsNullOrEmpty(text))
             throw new ArgumentException("Text cannot be null or empty.");
 

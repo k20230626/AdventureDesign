@@ -38,7 +38,7 @@ public static class MauiProgram
 #if WINDOWS10_0_17763_0_OR_GREATER
 					window.SystemBackdrop = new DesktopAcrylicBackdrop();
 #endif
-
+					
 				});
 			});
 		});

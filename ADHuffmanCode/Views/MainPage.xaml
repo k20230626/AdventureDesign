@@ -63,7 +63,7 @@
                 JustifyContent="Center">
                 <HorizontalStackLayout FlexLayout.Grow="1" Spacing="20">
                     <Label Text="{Binding CompressInfo.Raito, StringFormat='{0:F2}%',TargetNullValue=''}"/>
-                    <Label Text="{Binding CompressInfo.SaveBit,StringFormat='{}{0} Byte',TargetNullValue=''}" />
+                    <Label Text="{Binding CompressInfo.SaveBit,StringFormat='{}{0} Bit',TargetNullValue=''}" />
                 </HorizontalStackLayout>
                 <Button
                     Command="{Binding ProcessStartCommand}"
