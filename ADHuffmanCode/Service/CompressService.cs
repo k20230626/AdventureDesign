@@ -15,39 +15,53 @@ public class CompressService : ICompressService{
     public string Compress(string path) {
         var text = _fileService.ReadFile(path);
         var encodedText = _algorithm.Encode(text);
-        
-        using (var fileStream = new FileStream(path.Split(".")[0] + ".adhf", FileMode.Create)) {
-            using (var binaryWriter = new BinaryWriter(fileStream)) {
-                // Write frequency dictionary
-                binaryWriter.Write(_algorithm.CountFrequencies(text).Count);
-                foreach (var kvp in _algorithm.CountFrequencies(text)) {
-                    binaryWriter.Write(kvp.Key);
-                    binaryWriter.Write(kvp.Value);
-                }
-                // Write compressed data as bits
-                int bitBuffer = 0;
-                int bitCount = 0;
 
-                foreach (var bit in encodedText.ToString()) {
-                    bitBuffer = (bitBuffer << 1) | (bit == '1' ? 1 : 0);
-                    bitCount++;
+        #if WINDOWS
+        var adhfPath = path.Split(".")[0] + ".adhf";
+        #else
+        var adhfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "test.adhf");
+        Debug.Write($"{adhfPath}\n");
+        #endif
+        try {
 
-                    // Write byte when buffer is full
-                    if (bitCount == 8) {
-                        binaryWriter.Write((byte)bitBuffer);
-                        bitBuffer = 0;
-                        bitCount = 0;
+
+            using (var fileStream = new FileStream(adhfPath, FileMode.Create)) {
+                using (var binaryWriter = new BinaryWriter(fileStream)) {
+                    // Write frequency dictionary
+                    binaryWriter.Write(_algorithm.CountFrequencies(text).Count);
+                    foreach (var kvp in _algorithm.CountFrequencies(text)) {
+                        binaryWriter.Write(kvp.Key);
+                        binaryWriter.Write(kvp.Value);
                     }
-                }
 
-                // Write remaining bits if any
-                if (bitCount > 0) {
-                    bitBuffer = bitBuffer << (8 - bitCount); // Padding remaining bits with 0
-                    binaryWriter.Write((byte)bitBuffer);
+                    // Write compressed data as bits
+                    int bitBuffer = 0;
+                    int bitCount = 0;
+
+                    foreach (var bit in encodedText.ToString()) {
+                        bitBuffer = (bitBuffer << 1) | (bit == '1' ? 1 : 0);
+                        bitCount++;
+
+                        // Write byte when buffer is full
+                        if (bitCount == 8) {
+                            binaryWriter.Write((byte)bitBuffer);
+                            bitBuffer = 0;
+                            bitCount = 0;
+                        }
+                    }
+
+                    // Write remaining bits if any
+                    if (bitCount > 0) {
+                        bitBuffer = bitBuffer << (8 - bitCount); // Padding remaining bits with 0
+                        binaryWriter.Write((byte)bitBuffer);
+                    }
                 }
             }
         }
-        
+        catch (Exception e) {
+            Debug.WriteLine(e.Message);
+        }
+
         return encodedText;
     }
 

@@ -57,7 +57,11 @@ public partial class MainViewModel : BaseViewModel {
             })
         };
 
+        #if MACCATALYST
+        var res = await MacFilePicker.PickAsync(option);
+        #else
         var res = await FilePicker.Default.PickAsync(option);
+        #endif
         if (res is not null)
             FilePath = res.FullPath;
     }
