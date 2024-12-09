@@ -1,0 +1,11 @@
+.idea/
+.vs/
+
+ADHuffmanCode/bin
+ADHuffmanCode/obj
+ADHuffmanCode/ADHuffmanCode.csproj.user
+ADHuffmanCode.sln.DotSettings.user
+ADHuffmanCode.Tests/bin
+ADHuffmanCode.Tests/obj
+
+workload-install.ps1

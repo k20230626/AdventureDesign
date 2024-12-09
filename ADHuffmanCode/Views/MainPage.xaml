@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="ADHuffmanCode.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:m="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:vm="clr-namespace:ADHuffmanCode.ViewModels"
+    x:DataType="vm:MainViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+        <!--  File Info  -->
+        <Grid Margin="20,20,20,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="24" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Text="Input Text" />
+            <Label Grid.Column="2" Text="Output Text" />
+
+            <Editor
+                Grid.Row="1"
+                Grid.Column="0"
+                IsReadOnly="True"
+                Text="{Binding InputString}"
+                VerticalOptions="FillAndExpand" />
+            <Image
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="20">
+                <Image.Source>
+                    <FontImageSource FontFamily="MaterialSharp" Glyph="{x:Static m:MaterialSharp.Arrow_right_alt}" />
+                </Image.Source>
+            </Image>
+            <Editor
+                Grid.Row="1"
+                Grid.Column="2"
+                IsReadOnly="True"
+                Text="{Binding OutputString}" />
+
+
+            <Button
+                Grid.Row="2"
+                Grid.ColumnSpan="3"
+                Margin="10,20,10,0"
+                Command="{Binding OpenFilePickerCommand}"
+                Text="Select File" />
+        </Grid>
+        <Grid Grid.Row="1">
+            <FlexLayout
+                Margin="10,10,10,0"
+                AlignItems="Center"
+                Direction="Row"
+                JustifyContent="Center">
+                <HorizontalStackLayout FlexLayout.Grow="1" Spacing="20">
+                    <Label Text="{Binding CompressInfo.Raito, StringFormat='{0:F2}%',TargetNullValue=''}"/>
+                    <Label Text="{Binding CompressInfo.SaveBit,StringFormat='{}{0} Bit',TargetNullValue=''}" />
+                </HorizontalStackLayout>
+                <Button
+                    Command="{Binding ProcessStartCommand}"
+                    FlexLayout.Grow="0"
+                    Text="Compress" />
+            </FlexLayout>
+        </Grid>
+    </Grid>
+</ContentPage>
