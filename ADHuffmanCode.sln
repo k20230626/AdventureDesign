@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADHuffmanCode", "ADHuffmanC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADHuffmanCode.Tests", "ADHuffmanCode.Tests\ADHuffmanCode.Tests.csproj", "{DFEF6B7C-3248-4122-8E19-0D420FFBEBAD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ADHuffmanCode.ConsoleTest", "ADHuffmanCode.ConsoleTest\ADHuffmanCode.ConsoleTest.csproj", "{6514EB88-6167-43D9-8167-E9114840C49F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{DFEF6B7C-3248-4122-8E19-0D420FFBEBAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFEF6B7C-3248-4122-8E19-0D420FFBEBAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFEF6B7C-3248-4122-8E19-0D420FFBEBAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6514EB88-6167-43D9-8167-E9114840C49F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6514EB88-6167-43D9-8167-E9114840C49F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6514EB88-6167-43D9-8167-E9114840C49F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6514EB88-6167-43D9-8167-E9114840C49F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

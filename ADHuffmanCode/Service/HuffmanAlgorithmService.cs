@@ -65,7 +65,7 @@ public class HuffmanAlgorithmService : IHuffmanAlgorithmService {
             else
                 throw new InvalidOperationException($"Character '{ch}' not found in Huffman Tree.");
         }
-
+        
         int originalSize = text.Length * 8;
         int compressedSize = encodedText.Length;
 

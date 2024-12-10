@@ -17,12 +17,12 @@ public class CompressService : ICompressService{
         var text = _fileService.ReadFile(path);
         var encodedText = _algorithm.Encode(text);
 
-        #if WINDOWS
+        //#if WINDOWS
         var adhfPath = path.Split(".")[0] + ".adhf";
-        #else
-        var adhfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "test.adhf");
-        Debug.Write($"{adhfPath}\n");
-        #endif
+        // #else
+        // var adhfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "test.adhf");
+        // Debug.Write($"{adhfPath}\n");
+        // #endif
         try {
 
 
