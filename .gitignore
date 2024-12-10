@@ -1,5 +1,6 @@
 .idea/
 .vs/
+.vscode/
 
 ADHuffmanCode/bin
 ADHuffmanCode/obj
@@ -8,4 +9,7 @@ ADHuffmanCode.sln.DotSettings.user
 ADHuffmanCode.Tests/bin
 ADHuffmanCode.Tests/obj
 
+ADHuffmanCode.ConsoleTest/bin/
+ADHuffmanCode.ConsoleTest/obj/
 workload-install.ps1
+.DS_Store
